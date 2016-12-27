@@ -29,4 +29,6 @@ public class Operator {
     @Getter
     @Reference
     private List<Message> messages;
+    private Integer availableFrom; // Working hours, 0-24
+    private Integer availableTo;
 }

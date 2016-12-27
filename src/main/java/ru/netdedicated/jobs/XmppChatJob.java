@@ -7,6 +7,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.netdedicated.xmpp.pool.XmppChatPool;
 import ru.netdedicated.xmpp.pool.XmppConnectionPool;
 
 /**
@@ -23,16 +24,23 @@ public class XmppChatJob implements Job {
         if (connId == null){
             throw new JobExecutionException("Required job option \"connId\" is not specified");
         }
-        logger.debug("Creating new XMPP chat for connection " + connId);
-        XMPPTCPConnection connection = null;
+        /**
+         * TODO:
+         * Select XmppAccount based on operator availability
+         */
+        logger.debug("Creating new XMPP connection for session " + connId);
         try {
-            connection = XmppConnectionPool.getInstance().addConnection(connId, XMPPTCPConnectionConfiguration.builder()
+            XmppConnectionPool.getInstance().addConnection(connId, XMPPTCPConnectionConfiguration.builder()
                             .setUsernameAndPassword(null,null)
                             .build()
             );
         } catch (Exception e){
             logger.error("XMPP connection error", e);
             return;
+        }
+        logger.debug("Creating new XMPP chat with operator for session " + connId);
+        try {
+            XmppChatPool.getInstance().addChat(connId, with)
         }
 
     }
