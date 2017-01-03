@@ -13,6 +13,6 @@ public class OperatorService extends AbstractService {
         super(datastore);
     }
     public List<Operator> listAvailable(){
-
+        return null;
     }
 }

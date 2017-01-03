@@ -7,8 +7,12 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.netdedicated.duty.Duty;
+import ru.netdedicated.duty.DutyService;
 import ru.netdedicated.xmpp.pool.XmppChatPool;
 import ru.netdedicated.xmpp.pool.XmppConnectionPool;
+
+import java.util.Date;
 
 /**
  * One time task created on new incoming support requests
@@ -24,6 +28,16 @@ public class XmppChatJob implements Job {
         if (connId == null){
             throw new JobExecutionException("Required job option \"connId\" is not specified");
         }
+        DutyService dutyService = (DutyService)jobExecutionContext.getMergedJobDataMap().get("dutyService");
+        if (dutyService == null){
+            throw new JobExecutionException("Required job option \"dutyService\" is not specified" );
+        }
+        logger.debug("Finding current duty");
+        Duty duty = dutyService.findCurrentDuty(new Date());
+        if (duty == null) {
+            throw new JobExecutionException("No duties available for now");
+        }
+
         /**
          * TODO:
          * Select XmppAccount based on operator availability
@@ -39,9 +53,9 @@ public class XmppChatJob implements Job {
             return;
         }
         logger.debug("Creating new XMPP chat with operator for session " + connId);
-        try {
+        /*try {
             XmppChatPool.getInstance().addChat(connId, with)
-        }
+        }*/
 
     }
 }

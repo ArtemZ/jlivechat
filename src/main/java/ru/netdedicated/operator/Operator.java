@@ -6,6 +6,7 @@ import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 import org.mongodb.morphia.annotations.Reference;
+import ru.netdedicated.duty.Duty;
 import ru.netdedicated.message.Message;
 
 import java.util.List;
@@ -29,6 +30,7 @@ public class Operator {
     @Getter
     @Reference
     private List<Message> messages;
-    private Integer availableFrom; // Working hours, 0-24
-    private Integer availableTo;
+    @Getter
+    @Reference
+    private List<Duty> duties;
 }
