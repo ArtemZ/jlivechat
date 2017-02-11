@@ -8,7 +8,12 @@ import java.util.Locale;
 /**
  * Created by artemz on 10.12.16.
  */
-public class ClientService extends AbstractService {
+public class ClientService extends AbstractService<Client> {
+    @Override
+    public Class<Client> getServiceClass() {
+        return Client.class;
+    }
+
     public ClientService(Datastore datastore) {
         super(datastore);
     }

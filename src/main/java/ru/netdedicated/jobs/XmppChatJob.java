@@ -1,51 +1,78 @@
 package ru.netdedicated.jobs;
 
-import org.jivesoftware.smack.tcp.XMPPTCPConnection;
+import lombok.SneakyThrows;
+import org.jivesoftware.smack.SmackException;
+import org.jivesoftware.smack.chat.Chat;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
+import org.quartz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.netdedicated.client.Client;
 import ru.netdedicated.duty.Duty;
 import ru.netdedicated.duty.DutyService;
+import ru.netdedicated.i18n.I18nService;
+import ru.netdedicated.message.MessageService;
+import ru.netdedicated.operator.Operator;
+import ru.netdedicated.request.ChatRequest;
+import ru.netdedicated.request.RequestService;
+import ru.netdedicated.xmpp.account.XmppAccount;
+import ru.netdedicated.xmpp.account.XmppAccountService;
+import ru.netdedicated.xmpp.chat.XmppChatMessageListener;
 import ru.netdedicated.xmpp.pool.XmppChatPool;
 import ru.netdedicated.xmpp.pool.XmppConnectionPool;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * One time task created on new incoming support requests
  */
+@DisallowConcurrentExecution
 public class XmppChatJob implements Job {
     private Logger logger = LoggerFactory.getLogger(XmppChatJob.class);
     public XmppChatJob() {
     }
 
     @Override
-    public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
+    @SneakyThrows
+    public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException{
         String connId = jobExecutionContext.getMergedJobDataMap().getString("connId");
         if (connId == null){
             throw new JobExecutionException("Required job option \"connId\" is not specified");
         }
-        DutyService dutyService = (DutyService)jobExecutionContext.getMergedJobDataMap().get("dutyService");
+
+        DutyService dutyService = (DutyService)jobExecutionContext.getScheduler().getContext().get("dutyService");
+        XmppAccountService accountService = (XmppAccountService) jobExecutionContext.getScheduler().getContext().get("xmppAccountService");
+        MessageService messageService = (MessageService) jobExecutionContext.getScheduler().getContext().get("messageService");
+        RequestService requestService = (RequestService)jobExecutionContext.get("requestService");
+
         if (dutyService == null){
             throw new JobExecutionException("Required job option \"dutyService\" is not specified" );
+        }
+        if (accountService == null){
+            throw new JobExecutionException("Required job option \"xmppAccountService\" is not specified");
         }
         logger.debug("Finding current duty");
         Duty duty = dutyService.findCurrentDuty(new Date());
         if (duty == null) {
             throw new JobExecutionException("No duties available for now");
         }
+        //selecting first available operator in this duty
+        List<Operator> operators = duty.getOperators();
+        if (operators == null || operators.size() == 0){
+            throw new JobExecutionException("No operators assigned to duty " + duty.getId());
+        }
 
-        /**
-         * TODO:
-         * Select XmppAccount based on operator availability
-         */
         logger.debug("Creating new XMPP connection for session " + connId);
+
+        XmppAccount account = accountService.selectAvailable();
+
         try {
             XmppConnectionPool.getInstance().addConnection(connId, XMPPTCPConnectionConfiguration.builder()
-                            .setUsernameAndPassword(null,null)
+                            .setUsernameAndPassword(account.getUsername(), account.getPassword())
+                            .setHost(account.getHost())
+                            .setPort(account.getPort())
                             .build()
             );
         } catch (Exception e){
@@ -53,9 +80,22 @@ public class XmppChatJob implements Job {
             return;
         }
         logger.debug("Creating new XMPP chat with operator for session " + connId);
-        /*try {
-            XmppChatPool.getInstance().addChat(connId, with)
-        }*/
+        Chat newChat = null;
+
+        try {
+            newChat = XmppChatPool.getInstance().addChat(connId, operators.get(0).getJabber(), new XmppChatMessageListener(connId, messageService, requestService));
+        } catch (Exception e){
+            throw new JobExecutionException("Unable to create chat with " + operators.get(0).getJabber(), e);
+        }
+        ChatRequest request = requestService.findByIdent(connId);
+        Client client = request.getClient();
+        I18nService i18nService = new I18nService(new Locale("en"));
+        try {
+            newChat.sendMessage(i18nService.getStringForCode("operator.new.support.request", new String[] { client.getName(), client.getEmail(), connId } ));
+        } catch (SmackException.NotConnectedException e){
+            logger.error("XMPP Connection error: " + e.getMessage(), e);
+        }
+
 
     }
 }

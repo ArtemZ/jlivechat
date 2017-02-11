@@ -42,7 +42,7 @@ public class DutyTest {
     private int getHour(Date date){
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-        return calendar.get(Calendar.HOUR);
+        return calendar.get(Calendar.HOUR_OF_DAY);
     }
 
     @Test
@@ -86,6 +86,9 @@ public class DutyTest {
         when(query.asList()).thenReturn(duties);
 
         when(datastore.createQuery(Duty.class)).thenReturn(query);
+
+  //      Duty foundDuty = dutyService.findCurrentDuty(date);
+//        System.out.println(foundDuty.getEndHour());
 
         Assert.assertNull(dutyService.findCurrentDuty(date));
     }

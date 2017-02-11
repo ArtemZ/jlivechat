@@ -9,7 +9,12 @@ import java.util.List;
 /**
  * Created by artemz on 04.12.16.
  */
-public class MessageService extends AbstractService{
+public class MessageService extends AbstractService<Message>{
+    @Override
+    public Class<Message> getServiceClass() {
+        return Message.class;
+    }
+
     public MessageService(Datastore datastore) {
         super(datastore);
     }
