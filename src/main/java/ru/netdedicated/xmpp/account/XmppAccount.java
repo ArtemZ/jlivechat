@@ -13,7 +13,7 @@ import org.mongodb.morphia.annotations.Id;
 public class XmppAccount {
     @Id
     @Getter
-    private ObjectId id;
+    private String id = new ObjectId().toHexString();
     @Getter
     @Setter
     private String username;
@@ -28,5 +28,5 @@ public class XmppAccount {
     private Integer port = 5222;
     @Getter
     @Setter
-    private String takedBy = null; // Session id
+    private String takenBy = null; // Session id
 }

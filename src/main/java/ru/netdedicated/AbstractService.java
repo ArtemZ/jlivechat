@@ -22,6 +22,10 @@ public abstract class AbstractService<T> {
         return datastore;
     }
 
+    public T get(String id){
+        return getDatastore().find(getServiceClass()).field("id").equal(id).get();
+    }
+
     public List<T> list(){
         return getDatastore().createQuery(getServiceClass()).asList();
     }

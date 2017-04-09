@@ -3,7 +3,7 @@ package ru.netdedicated.duty;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.types.ObjectId;
-import org.hibernate.validator.constraints.NotEmpty;
+import org.mongodb.morphia.annotations.CappedAt;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 import org.mongodb.morphia.annotations.Reference;
@@ -15,6 +15,7 @@ import spark.Request;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -28,28 +29,24 @@ public class Duty {
 
     @Id
     @Getter
-    private ObjectId id;
+    private String id = new ObjectId().toHexString();
     @Getter
     @Setter
-    @NotEmpty
     private Date startDate;
     @Getter
     @Setter
-    @NotEmpty
     private Date endDate;
     @Getter
     @Setter
-    @NotEmpty
     /* Day hours this duty is active */
     private Integer startHour;
     @Getter
     @Setter
-    @NotEmpty
     /* If end hour < start hour then it is belonging to the next day */
     private Integer endHour;
     @Getter
-    @Reference
-    private List<Operator> operators;
+    @Reference(lazy = true)
+    private List<Operator> operators = new ArrayList<>();
 
     public void addOperator(Operator op){
         operators.add(op);

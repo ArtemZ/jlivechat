@@ -31,10 +31,25 @@ public class XmppConnectionPool extends GenericKeyedObjectPool<String, XMPPTCPCo
         return InnerXmppConnectionPool.INSTANCE;
     }
 
+/*    @Override
+        public void addObject(K key) throws Exception {
+                assertOpen();
+                register(key);
+                try {
+                        PooledObject<T> p = create(key);
+                        addIdleObject(key, p);
+                    } finally {
+                        deregister(key);
+                    }
+            }*/
+
     public XMPPTCPConnection addConnection(String connId, XMPPTCPConnectionConfiguration config) throws Exception{
-        preparePool(connId);
+        assert config != null;
         ((XmppConnectionFactory)getFactory()).setUp(config);
+        preparePool(connId);
+
         addObject(connId);
+
         return borrowObject(connId);
     }
 

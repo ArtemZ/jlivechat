@@ -11,6 +11,7 @@ import org.mongodb.morphia.annotations.Reference;
 import ru.netdedicated.operator.Operator;
 import ru.netdedicated.request.ChatRequest;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 /**
@@ -20,7 +21,7 @@ import java.util.Date;
 public class Message {
     @Id
     @Getter
-    private ObjectId id;
+    private String id = new ObjectId().toHexString();
     @Getter
     @Setter
     @NotBlank
@@ -36,6 +37,6 @@ public class Message {
     @Getter
     @Setter
     @Reference
-    @NotEmpty
+    @NotNull
     private ChatRequest request;
 }

@@ -17,7 +17,8 @@ import java.util.Locale;
 @Entity("clients")
 public class Client {
     @Id
-    private ObjectId id;
+    @Getter
+    private String id = new ObjectId().toHexString();
     //@NotBlank
     @Getter
     @Setter

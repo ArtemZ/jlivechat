@@ -26,8 +26,9 @@ public class XmppChatFactory implements KeyedPooledObjectFactory<String, Chat> {
         }
         ChatManager manager = ChatManager.getInstanceFor(connection);
         Chat chat = manager.createChat(chatWith, listener);
-        chatWith = null;
-        listener = null;
+        //chatWith = null;
+        //listener = null;
+        XmppConnectionPool.getInstance().returnObject(connId, connection);
         return new DefaultPooledObject<>(chat);
     }
 

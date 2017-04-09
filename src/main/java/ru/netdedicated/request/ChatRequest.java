@@ -5,6 +5,7 @@ import lombok.Setter;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
+import org.mongodb.morphia.annotations.Indexed;
 import org.mongodb.morphia.annotations.Reference;
 import ru.netdedicated.client.Client;
 import ru.netdedicated.operator.Operator;
@@ -18,9 +19,10 @@ import java.util.Date;
 public class ChatRequest {
     @Id
     @Getter
-    private ObjectId id;
+    private String id = new ObjectId().toHexString();
     @Getter
     @Setter
+    @Indexed(unique = true)
     private String ident;
     @Getter
     @Setter

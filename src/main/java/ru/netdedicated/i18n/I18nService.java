@@ -1,6 +1,7 @@
 package ru.netdedicated.i18n;
 
-import javax.validation.constraints.Null;
+import org.omg.CosNaming.NamingContextExtPackage.StringNameHelper;
+
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -22,5 +23,12 @@ public class I18nService {
         MessageFormat formatter = new MessageFormat(bundle.getString(code));
         return formatter.format(args);
 
+    }
+    public String getStringForCode(String code){
+        ResourceBundle bundle = ResourceBundle.getBundle("messages", locale);
+        if (bundle == null) {
+            throw new NullPointerException("Cant load resource bundle messages for locale " + locale );
+        }
+        return bundle.getString(code);
     }
 }

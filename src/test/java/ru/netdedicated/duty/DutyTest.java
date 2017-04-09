@@ -53,7 +53,7 @@ public class DutyTest {
     @SuppressWarnings("unchecked")
     public void testFindingCurrentDutyStartsEndsToday(){
         Date date = new Date();
-
+        System.out.println(addHoursToDate(date, 5));
         Duty duty = new Duty();
         duty.setEndDate(addHoursToDate(date, 5));
         duty.setStartDate(addHoursToDate(date, -10));

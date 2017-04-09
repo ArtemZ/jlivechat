@@ -31,10 +31,11 @@ public class XmppChatPool extends GenericKeyedObjectPool<String, Chat> {
     }
 
     public Chat addChat(String connId, String with, ChatMessageListener listener) throws Exception{
+        ((XmppChatFactory) getFactory()).setUpChatWith(with, listener);
         preparePool(connId);
-        ((XmppChatFactory)getFactory()).setUpChatWith(with, listener);
         addObject(connId);
         return borrowObject(connId);
 
     }
+
 }

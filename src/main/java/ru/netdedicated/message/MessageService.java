@@ -1,6 +1,7 @@
 package ru.netdedicated.message;
 
 import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.Key;
 import ru.netdedicated.AbstractService;
 import ru.netdedicated.request.ChatRequest;
 
@@ -20,12 +21,21 @@ public class MessageService extends AbstractService<Message>{
     }
 
     public List<Message> listByRequest(ChatRequest chatRequest){
-        return getDatastore().createQuery(Message.class).field("requests.$id").equal(chatRequest.getId()).asList();
+        return getDatastore().createQuery(Message.class).field("request").equal(chatRequest).asList();
     }
     public Message create(String msg, ChatRequest chatRequest){
         Message message = new Message();
         message.setMessage(msg);
         message.setRequest(chatRequest);
+
+        getDatastore().save(message);
+        return message;
+    }
+    public Message createStatus(String msg, ChatRequest chatRequest){
+        Message message = new Message();
+        message.setMessage(msg);
+        message.setRequest(chatRequest);
+        message.setStatus(true);
 
         getDatastore().save(message);
         return message;

@@ -19,6 +19,7 @@ import ru.netdedicated.operator.OperatorController;
 import ru.netdedicated.operator.OperatorService;
 import ru.netdedicated.request.RequestController;
 import ru.netdedicated.request.RequestService;
+import ru.netdedicated.xmpp.account.XmppAccountController;
 import ru.netdedicated.xmpp.account.XmppAccountService;
 import spark.Spark;
 
@@ -47,22 +48,30 @@ public class App {
         final Datastore datastore = morphia.createDatastore(new MongoClient("localhost"), "jlivechat");
         DutyService dutyService = new DutyService(datastore);
         XmppAccountService accountService = new XmppAccountService(datastore);
+        MessageService messageService = new MessageService(datastore);
 
         scheduler.getContext().put("dutyService", dutyService);
         scheduler.getContext().put("xmppAccountService", accountService);
+        scheduler.getContext().put("messageService", messageService);
         RequestService requestService = new RequestService(datastore, scheduler);
         OperatorService operatorService = new OperatorService(datastore);
+        scheduler.getContext().put("requestService", requestService);
+        scheduler.getContext().put("operatorService", operatorService);
+
 
         before((request, response) -> response.type("application/json"));
 
-        new MessageController(new MessageService(datastore), requestService);
+        new MessageController(messageService, requestService);
 
         new RequestController(requestService, new ClientService(datastore));
 
         new OperatorController(operatorService);
 
-        new DutyController(dutyService);
+        new DutyController(dutyService, operatorService);
 
+        new XmppAccountController(accountService);
+
+        datastore.ensureIndexes();
 
     }
 }

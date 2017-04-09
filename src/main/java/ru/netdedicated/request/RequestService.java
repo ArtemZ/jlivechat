@@ -58,7 +58,18 @@ public class RequestService extends AbstractService<ChatRequest>{
         return request;
     }
 
+    public void assign(String ident, Operator op){
+        ChatRequest request = findByIdent(ident);
+        request.setOp(op);
+        getDatastore().save(request);
+    }
+
     public void delete(ChatRequest request){
         getDatastore().delete(request);
+    }
+
+    public void close(ChatRequest request){
+        request.setClosed(true);
+        getDatastore().save(request);
     }
 }

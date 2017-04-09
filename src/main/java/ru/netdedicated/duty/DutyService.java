@@ -39,7 +39,7 @@ public class DutyService extends AbstractService<Duty> {
 
     public Duty findCurrentDuty(Date now){
         List<Duty> currentDuties = getCloseDuties(now).stream()
-                .filter( duty -> duty.getEndHour() > getCurrentHour(now))
+                .filter( duty -> duty.getEndHour() > getCurrentHour(now) || duty.getEndHour() < duty.getStartHour())
                 .collect(Collectors.toList());
         if (currentDuties.size() > 0){
             return currentDuties.get(0);

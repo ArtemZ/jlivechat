@@ -15,18 +15,19 @@ public class XmppConnectionFactory implements KeyedPooledObjectFactory<String, X
 
     @Override
     public PooledObject<XMPPTCPConnection> makeObject(String key) throws Exception {
-        if (configuration == null){
+        if (this.configuration == null){
             throw new NullPointerException("XmppConnectionFactory is not configured");
         }
         XMPPTCPConnection connection = new XMPPTCPConnection(configuration);
         connection.connect();
         /* resetting connection configuration so that no more connections would use it */
-        configuration = null;
+        //configuration = null;
         return new DefaultPooledObject<>(connection);
     }
 
     public void setUp(XMPPTCPConnectionConfiguration config){
-        configuration = config;
+        this.configuration = config;
+        assert configuration != null;
     }
 
     @Override
@@ -48,6 +49,10 @@ public class XmppConnectionFactory implements KeyedPooledObjectFactory<String, X
         if (!conn.isAuthenticated()){
             conn.login();
         }
+    }
+
+    public boolean hasConfiguration(){
+        return this.configuration != null;
     }
 
     @Override
