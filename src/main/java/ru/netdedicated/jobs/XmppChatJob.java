@@ -79,6 +79,7 @@ public class XmppChatJob implements Job {
 
         XmppAccount account = accountService.selectAvailable();
         if (account == null){
+            logger.error("No operators available");
             messageService.createStatus(i18nService.getStringForCode("no.operators.available", null), request);
             requestService.close(request);
             return;
@@ -104,9 +105,7 @@ public class XmppChatJob implements Job {
             return;
         } finally {
             if (connection != null){
-                System.out.println("returning connection " + connId + " to the pool");
                 XmppConnectionPool.getInstance().returnObject(connId, connection);
-                System.out.println("numactive after return: " + XmppConnectionPool.getInstance().getNumActive(connId));
             }
         }
         logger.debug("Creating new XMPP chat with operator for session " + connId);

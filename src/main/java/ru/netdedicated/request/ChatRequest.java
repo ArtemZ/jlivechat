@@ -26,6 +26,7 @@ public class ChatRequest {
     private String ident;
     @Getter
     @Setter
+    @Reference
     private Operator op;
     @Getter
     @Setter

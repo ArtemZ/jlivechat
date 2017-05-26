@@ -26,6 +26,13 @@ public class XmppAccountService extends AbstractService<XmppAccount> {
         }
         return null;
     }
+    public void releaseByConnId(String connId){
+        getDatastore().update(
+                getQuery().field("takenBy").equal(connId),
+                getUpdateOperations().unset("takenBy")
+        );
+    }
+
     public XmppAccount create(String username, String password, String host, Integer port){
         XmppAccount account = new XmppAccount();
         account.setUsername(username);

@@ -37,5 +37,6 @@ public class RequestController {
                     );
             return requestService.create(uuid, client );
         }, json());
+        get("/requests/:ident", ((request, response) -> requestService.findByIdent(request.params(":ident"))), json());
     }
 }

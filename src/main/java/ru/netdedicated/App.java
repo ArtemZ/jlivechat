@@ -40,6 +40,7 @@ public class App {
         morphia.mapPackage("ru.netdedicated.message", true);
         morphia.mapPackage("ru.netdedicated.operator", true);
         morphia.mapPackage("ru.netdedicated.request", true);
+        morphia.mapPackage("ru.netdedicated.xmpp.account", true);
         new ValidationExtension(morphia);
 
         Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
@@ -53,7 +54,7 @@ public class App {
         scheduler.getContext().put("dutyService", dutyService);
         scheduler.getContext().put("xmppAccountService", accountService);
         scheduler.getContext().put("messageService", messageService);
-        RequestService requestService = new RequestService(datastore, scheduler);
+        RequestService requestService = new RequestService(datastore, scheduler, accountService);
         OperatorService operatorService = new OperatorService(datastore);
         scheduler.getContext().put("requestService", requestService);
         scheduler.getContext().put("operatorService", operatorService);

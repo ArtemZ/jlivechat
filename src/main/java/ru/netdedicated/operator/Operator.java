@@ -23,11 +23,11 @@ public class Operator {
     private String name;
     @Getter
     @Setter
-    @Indexed(unique = true)
+    @Indexed(unique = true, sparse = true)
     private String jabber;
     @Getter
     @Setter
-    @Indexed(unique = true)
+    @Indexed(unique = true, sparse = true) /* https://docs.mongodb.com/manual/core/index-sparse/ */
     private String phoneNumber;
     @Getter
     @Reference

@@ -7,6 +7,7 @@ import ru.netdedicated.AbstractService;
 import ru.netdedicated.client.Client;
 import ru.netdedicated.jobs.XmppChatJob;
 import ru.netdedicated.operator.Operator;
+import ru.netdedicated.xmpp.account.XmppAccountService;
 
 import java.util.List;
 
@@ -20,11 +21,13 @@ import static org.quartz.TriggerBuilder.newTrigger;
 public class RequestService extends AbstractService<ChatRequest>{
 
     private final Scheduler scheduler;
+    private XmppAccountService xmppAccountService;
 
-    public RequestService(Datastore datastore, Scheduler sched) {
+    public RequestService(Datastore datastore, Scheduler sched, XmppAccountService xmppAccountService) {
 
         super(datastore);
         this.scheduler = sched;
+        this.xmppAccountService = xmppAccountService;
     }
 
     @Override
@@ -70,6 +73,7 @@ public class RequestService extends AbstractService<ChatRequest>{
 
     public void close(ChatRequest request){
         request.setClosed(true);
+        xmppAccountService.releaseByConnId(request.getIdent());
         getDatastore().save(request);
     }
 }
