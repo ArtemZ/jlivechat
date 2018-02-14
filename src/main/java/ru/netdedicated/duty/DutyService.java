@@ -4,6 +4,7 @@ import org.mongodb.morphia.Datastore;
 import ru.netdedicated.AbstractService;
 import ru.netdedicated.operator.Operator;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -33,13 +34,13 @@ public class DutyService extends AbstractService<Duty> {
                 .disableValidation()
                 .filter("startDate <=", now)
                 .filter("endDate >=", now)
-                .filter("startHour <=", getCurrentHour(now))
+                //.filter("startHour <=", getCurrentHour(now))
                 .asList();
     }
 
     public Duty findCurrentDuty(Date now){
         List<Duty> currentDuties = getCloseDuties(now).stream()
-                .filter( duty -> duty.getEndHour() > getCurrentHour(now) || duty.getEndHour() < duty.getStartHour())
+                .filter( duty -> new TodayDutyPeriod(duty.getStartHour(), duty.getEndHour()).isCurrentDuty() )
                 .collect(Collectors.toList());
         if (currentDuties.size() > 0){
             return currentDuties.get(0);
@@ -51,5 +52,26 @@ public class DutyService extends AbstractService<Duty> {
     public void addOperator(Duty duty, Operator operator){
         duty.addOperator(operator);
         getDatastore().save(duty);
+    }
+
+    private class TodayDutyPeriod {
+        private List<Integer> hours = new ArrayList<>();
+
+        public TodayDutyPeriod(Integer startHour, Integer endHour) {
+            hours = new ArrayList<>();
+            hours.add(startHour);
+            while ((hours.get(hours.size() - 1) + 1) != endHour){
+                int prevHour = hours.get(hours.size() - 1);
+                if (prevHour == 23){
+                    hours.add(0);
+                } else {
+                    hours.add(prevHour + 1);
+                }
+            }
+        }
+
+        public boolean isCurrentDuty(){
+            return hours.contains(getCurrentHour(new Date()));
+        }
     }
 }

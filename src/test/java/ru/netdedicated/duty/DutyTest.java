@@ -92,7 +92,7 @@ public class DutyTest {
 
         Assert.assertNull(dutyService.findCurrentDuty(date));
     }
- /*   @Test
+    @Test
     @SuppressWarnings("unchecked")
     public void testDutyStartsLaterToday(){
         Date date = new Date();
@@ -112,5 +112,5 @@ public class DutyTest {
 
         Assert.assertNull(dutyService.findCurrentDuty(date));
 
-    }*/
+    }
 }
